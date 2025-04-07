@@ -1,0 +1,165 @@
+bird/
+# BirdNET-Analyzer specific
+BirdNET-Analyzer/playground*
+BirdNET-Analyzer/foo*
+
+# Apple :/
+BirdNET-Analyzer/.DS_Store
+
+# Documentation
+BirdNET-Analyzer/_build
+
+# Installers
+BirdNET-Analyzer/installers/
+BirdNET-Analyzer/desktop.ini
+BirdNET-Analyzer/*.iss
+BirdNET-Analyzer/*deploy*
+BirdNET-Analyzer/*hook*
+
+# Custom classifier
+BirdNET-Analyzer/checkpoints/custom/
+
+# Example output
+BirdNET-Analyzer/example
+!BirdNET-Analyzer/example/soundscape.wav
+!BirdNET-Analyzer/example/species_list.txt
+
+# Logs
+BirdNET-Analyzer/error_log.txt
+
+# IDE/Editor settings
+BirdNET-Analyzer/.vscode/
+
+# Byte-compiled / optimized / DLL files
+BirdNET-Analyzer/__pycache__/
+BirdNET-Analyzer/*.py[cod]
+BirdNET-Analyzer/*$py.class
+
+# C extensions
+BirdNET-Analyzer/*.so
+
+# Distribution / packaging
+BirdNET-Analyzer/.Python
+BirdNET-Analyzer/build*
+BirdNET-Analyzer/develop-eggs/
+BirdNET-Analyzer/dist/
+BirdNET-Analyzer/downloads/
+BirdNET-Analyzer/eggs/
+BirdNET-Analyzer/.eggs/
+BirdNET-Analyzer/lib/
+BirdNET-Analyzer/lib64/
+BirdNET-Analyzer/parts/
+BirdNET-Analyzer/sdist/
+BirdNET-Analyzer/var/
+BirdNET-Analyzer/wheels/
+BirdNET-Analyzer/pip-wheel-metadata/
+BirdNET-Analyzer/share/python-wheels/
+BirdNET-Analyzer/*.egg-info/
+BirdNET-Analyzer/.installed.cfg
+BirdNET-Analyzer/*.egg
+BirdNET-Analyzer/MANIFEST
+
+# PyInstaller
+BirdNET-Analyzer/*.manifest
+BirdNET-Analyzer/*.spec
+
+# Installer logs
+BirdNET-Analyzer/pip-log.txt
+BirdNET-Analyzer/pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+BirdNET-Analyzer/htmlcov/
+BirdNET-Analyzer/.tox/
+BirdNET-Analyzer/.nox/
+BirdNET-Analyzer/.coverage
+BirdNET-Analyzer/.coverage.*
+BirdNET-Analyzer/.cache
+BirdNET-Analyzer/nosetests.xml
+BirdNET-Analyzer/coverage.xml
+BirdNET-Analyzer/*.cover
+BirdNET-Analyzer/*.py,cover
+BirdNET-Analyzer/.hypothesis/
+BirdNET-Analyzer/.pytest_cache/
+
+# Translations
+BirdNET-Analyzer/*.mo
+BirdNET-Analyzer/*.pot
+
+# Django stuff:
+BirdNET-Analyzer/*.log
+BirdNET-Analyzer/local_settings.py
+BirdNET-Analyzer/db.sqlite3
+BirdNET-Analyzer/db.sqlite3-journal
+
+# Flask stuff:
+BirdNET-Analyzer/instance/
+BirdNET-Analyzer/.webassets-cache
+
+# Scrapy stuff:
+BirdNET-Analyzer/.scrapy
+
+# Sphinx documentation
+BirdNET-Analyzer/docs/_build/
+
+# PyBuilder
+BirdNET-Analyzer/target/
+
+# Jupyter Notebook
+BirdNET-Analyzer/.ipynb_checkpoints
+
+# IPython
+BirdNET-Analyzer/profile_default/
+BirdNET-Analyzer/ipython_config.py
+
+# pyenv
+BirdNET-Analyzer/.python-version
+
+# pipenv
+#BirdNET-Analyzer/Pipfile.lock
+
+# PEP 582
+BirdNET-Analyzer/__pypackages__/
+
+# Celery stuff
+BirdNET-Analyzer/celerybeat-schedule
+BirdNET-Analyzer/celerybeat.pid
+
+# SageMath parsed files
+BirdNET-Analyzer/*.sage.py
+
+# Environments
+BirdNET-Analyzer/.env
+BirdNET-Analyzer/.venv
+BirdNET-Analyzer/env/
+BirdNET-Analyzer/venv/
+BirdNET-Analyzer/ENV/
+BirdNET-Analyzer/env.bak/
+BirdNET-Analyzer/venv.bak/
+
+# Spyder project settings
+BirdNET-Analyzer/.spyderproject
+BirdNET-Analyzer/.spyproject
+
+# Rope project settings
+BirdNET-Analyzer/.ropeproject
+
+# mkdocs documentation
+BirdNET-Analyzer/site
+
+# mypy
+BirdNET-Analyzer/.mypy_cache/
+BirdNET-Analyzer/.dmypy.json
+BirdNET-Analyzer/dmypy.json
+
+# Pyre type checker
+BirdNET-Analyzer/.pyre/
+
+# Custom training data and cache
+BirdNET-Analyzer/train_data/
+BirdNET-Analyzer/train_cache.npz
+BirdNET-Analyzer/autotune/
+
+# GUI & system state files
+BirdNET-Analyzer/gui-settings.json
+BirdNET-Analyzer/state.json
+BirdNET-Analyzer/entitlements.plist
