@@ -187,7 +187,7 @@ def main():
         with Pool(cfg.CPU_THREADS) as p:
             # Map analyzeFile function to each entry in flist
             results = p.map_async(analyze_file, flist)
-            # Wait for all tasks to complete
+            # Wait for all ar to complete
             results.wait()
             result_files = results.get()
 

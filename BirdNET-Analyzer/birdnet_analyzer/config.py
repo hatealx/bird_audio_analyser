@@ -1,6 +1,21 @@
 import os
+import sys
+from pathlib import Path
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
+
+# Use Path for more reliable path resolution
+BIRD_DIR = str(Path(SCRIPT_DIR).parent.parent)
+print(f"BirdNET_DIR: {BIRD_DIR}")
+LOCATION_CONFIG = os.path.join(BIRD_DIR, "location_config.py")
+
+try:
+    sys.path.append(BIRD_DIR)
+    from location_config import DEFAULT_LATITUDE, DEFAULT_LONGITUDE
+except ImportError:
+    print(f"location_config.py not found at {LOCATION_CONFIG}. Using default values for latitude and longitude.")
+    DEFAULT_LATITUDE = -1
+    DEFAULT_LONGITUDE = -1
 
 #################
 # Misc settings #
@@ -58,8 +73,8 @@ AUDIO_SPEED: float = 1.0
 # Metadata settings #
 #####################
 
-LATITUDE: float = -1
-LONGITUDE: float = -1
+LATITUDE: float = DEFAULT_LATITUDE
+LONGITUDE: float = DEFAULT_LONGITUDE
 WEEK: int = -1
 LOCATION_FILTER_THRESHOLD: float = 0.03
 
