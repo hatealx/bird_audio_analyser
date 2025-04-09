@@ -11,11 +11,14 @@ LOCATION_CONFIG = os.path.join(BIRD_DIR, "location_config.py")
 
 try:
     sys.path.append(BIRD_DIR)
-    from location_config import DEFAULT_LATITUDE, DEFAULT_LONGITUDE
+    from location_config import DEFAULT_LATITUDE, DEFAULT_LONGITUDE, DEFAULT_CONFIDENCE
+    print(f"DEFAULT_LATITUDE: {DEFAULT_LATITUDE}, DEFAULT_LONGITUDE: {DEFAULT_LONGITUDE}")
+    print(f"DEFAULT_CONFIDENCE: {DEFAULT_CONFIDENCE}")
 except ImportError:
-    print(f"location_config.py not found at {LOCATION_CONFIG}. Using default values for latitude and longitude.")
-    DEFAULT_LATITUDE = -1
-    DEFAULT_LONGITUDE = -1
+    print(f"location_config.py not found at {LOCATION_CONFIG}. Using default values for configuration.")
+    DEFAULT_LATITUDE = 51
+    DEFAULT_LONGITUDE = 0
+    DEFAULT_CONFIDENCE = 0.50
 
 #################
 # Misc settings #
@@ -103,7 +106,7 @@ SIGMOID_SENSITIVITY: float = 1.0
 # Minimum confidence score to include in selection table
 # (be aware: if APPLY_SIGMOID = False, this no longer represents
 # probabilities and needs to be adjusted)
-MIN_CONFIDENCE: float = 0.25
+MIN_CONFIDENCE: float = DEFAULT_CONFIDENCE
 
 # Number of consecutive detections for one species to merge into one
 # If set to 1 or 0, no merging will be done

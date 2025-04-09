@@ -67,6 +67,16 @@ def load_codes():
 def generate_raven_table(timestamps: list[str], result: dict[str, list], afile_path: str, result_path: str):
     """
     Generates a Raven selection table from the given timestamps and prediction results.
+    Results are sorted in two levels:
+    1. Primary sort: Alphabetically by species name (Common Name)
+       - Ensures all detections of the same species are grouped together
+       - Makes it easy to find all occurrences of a particular species
+       Example: 'Dunnock' comes before 'Eurasian Bullfinch'
+    
+    2. Secondary sort: By confidence score (highest to lowest within each species)
+       - Higher confidence detections appear first within each species group
+       - Helps identify the most reliable detections quickly
+       Example: A 0.95 confidence Dunnock detection appears before a 0.75 confidence Dunnock detection
 
     Args:
         timestamps (list[str]): List of timestamp strings in the format "start-end".
@@ -74,8 +84,10 @@ def generate_raven_table(timestamps: list[str], result: dict[str, list], afile_p
         afile_path (str): Path to the audio file being analyzed.
         result_path (str): Path where the resulting Raven selection table will be saved.
 
-    Returns:
-        None
+    Format of output:
+    - Each row represents a 3-second detection segment
+    - Confidence scores range from 0 (lowest) to 1 (highest)
+    - Time stamps show when each vocalization was detected
     """
     selection_id = 0
     out_string = RAVEN_TABLE_HEADER
@@ -89,27 +101,35 @@ def generate_raven_table(timestamps: list[str], result: dict[str, list], afile_p
     high_freq = min(high_freq, int(cfg.BANDPASS_FMAX / cfg.AUDIO_SPEED))
     low_freq = max(cfg.SIG_FMIN, int(cfg.BANDPASS_FMIN / cfg.AUDIO_SPEED))
 
-    # Extract valid predictions for every timestamp
+    # Step 1: Collect all results into a list of dictionaries for sorting
+    all_results = []
     for timestamp in timestamps:
-        rstring = ""
         start, end = timestamp.split("-", 1)
-
         for c in result[timestamp]:
-            selection_id += 1
             label = cfg.TRANSLATED_LABELS[cfg.LABELS.index(c[0])]
             code = cfg.CODES[c[0]] if c[0] in cfg.CODES else c[0]
-            rstring += f"{selection_id}\tSpectrogram 1\t1\t{start}\t{end}\t{low_freq}\t{high_freq}\t{label.split('_', 1)[-1]}\t{code}\t{c[1]:.4f}\t{afile_path}\t{start}\n"
+            all_results.append({
+                'start': start,
+                'end': end,
+                'species': label.split('_', 1)[-1],  # Extract common name
+                'code': code,
+                'confidence': c[1]
+            })
 
-        # Write result string to file
-        out_string += rstring
+    # Step 2: Sort results using two keys:
+    # - Primary key: species name (alphabetical)
+    # - Secondary key: confidence score (descending order, hence the minus sign)
+    all_results.sort(key=lambda x: (x['species'], -x['confidence']))
 
-    # If we don't have any valid predictions, we still need to add a line to the selection table in case we want to combine results
-    # TODO: That's a weird way to do it, but it works for now. It would be better to keep track of file durations during the analysis.
+    # Step 3: Generate the sorted output
+    for entry in all_results:
+        selection_id += 1
+        out_string += f"{selection_id}\tSpectrogram 1\t1\t{entry['start']}\t{entry['end']}\t{low_freq}\t{high_freq}\t{entry['species']}\t{entry['code']}\t{entry['confidence']:.4f}\t{afile_path}\t{entry['start']}\n"
+
+    # Add a dummy line for empty results to maintain file format consistency
     if len(out_string) == len(RAVEN_TABLE_HEADER) and cfg.OUTPUT_PATH is not None:
         selection_id += 1
-        out_string += (
-            f"{selection_id}\tSpectrogram 1\t1\t0\t3\t{low_freq}\t{high_freq}\tnocall\tnocall\t1.0\t{afile_path}\t0\n"
-        )
+        out_string += f"{selection_id}\tSpectrogram 1\t1\t0\t3\t{low_freq}\t{high_freq}\tnocall\tnocall\t1.0\t{afile_path}\t0\n"
 
     utils.save_result_file(result_path, out_string)
 
@@ -477,7 +497,7 @@ def merge_consecutive_detections(results: dict[str, list], max_consecutive: int 
                 
             i += 1
                 
-        merged_results[label] = timestamps
+        merged_results = {label: timestamps for label, timestamps in species.items()}
     
     # Restore original format
     results = {}
@@ -629,7 +649,7 @@ def analyze_file(item):
             samples = []
             timestamps = []
 
-            for chunk_index, chunk in enumerate(chunks):
+            for chunk in chunks:
                 # Add to batch
                 samples.append(chunk)
                 timestamps.append([round(start * cfg.AUDIO_SPEED, 1), round(end * cfg.AUDIO_SPEED, 1)])
@@ -639,7 +659,7 @@ def analyze_file(item):
                 end = start + cfg.SIG_LENGTH
 
                 # Check if batch is full or last chunk
-                if len(samples) < cfg.BATCH_SIZE and chunk_index < len(chunks) - 1:
+                if len(samples) < cfg.BATCH_SIZE and len(samples) < len(chunks):
                     continue
 
                 # Predict
@@ -667,8 +687,7 @@ def analyze_file(item):
                     if cfg.TOP_N:
                         p_sorted = p_sorted[: cfg.TOP_N]
 
-                    # TODO hier schon top n oder min conf raussortieren
-                    # Store top 5 results and advance indices
+                    # Store results
                     results[str(s_start) + "-" + str(s_end)] = p_sorted
 
                 # Clear batch

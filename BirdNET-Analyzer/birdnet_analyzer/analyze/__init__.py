@@ -91,7 +91,18 @@ def set_params(
             else:
                 cfg.LABELS = [line.split(",")[1] for line in read_lines(cfg.LABELS_FILE)]
     else:
-        cfg.LATITUDE, cfg.LONGITUDE, cfg.WEEK = lat, lon, week
+        # Only update lat/lon if they are provided (not -1)
+        if lat != -1 and lon != -1:
+            cfg.LATITUDE = lat
+            cfg.LONGITUDE = lon
+        cfg.WEEK = week
+
+        # Log the actual values being used
+        print(f"Using configuration:", flush=True)
+        print(f"  Latitude: {cfg.LATITUDE} {'(provided)' if lat != -1 else '(default)'}", flush=True)
+        print(f"  Longitude: {cfg.LONGITUDE} {'(provided)' if lon != -1 else '(default)'}", flush=True)
+        print(f"  Confidence threshold: {cfg.MIN_CONFIDENCE}", flush=True)
+
         cfg.CUSTOM_CLASSIFIER = None
 
         if cfg.LATITUDE == -1 and cfg.LONGITUDE == -1:
