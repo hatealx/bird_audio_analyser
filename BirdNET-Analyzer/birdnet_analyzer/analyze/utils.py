@@ -114,14 +114,13 @@ def generate_raven_table(timestamps: list[str], result: dict[str, list], afile_p
                 'species': label.split('_', 1)[-1],  # Extract common name
                 'code': code,
                 'confidence': c[1]
-            })
-
-    # Step 2: Sort results using two keys:
-    # - Primary key: species name (alphabetical)
-    # - Secondary key: confidence score (descending order, hence the minus sign)
+            })    # Step 2: Get top 3 instances per species
+    all_results = get_top_n_per_species(all_results, 3)
+    
+    # Step 3: Sort final results by species and confidence
     all_results.sort(key=lambda x: (x['species'], -x['confidence']))
 
-    # Step 3: Generate the sorted output
+    # Step 4: Generate the sorted output
     for entry in all_results:
         selection_id += 1
         out_string += f"{selection_id}\tSpectrogram 1\t1\t{entry['start']}\t{entry['end']}\t{low_freq}\t{high_freq}\t{entry['species']}\t{entry['code']}\t{entry['confidence']:.4f}\t{afile_path}\t{entry['start']}\n"
@@ -717,3 +716,33 @@ def analyze_file(item):
     print(f"Finished {fpath} in {delta_time:.2f} seconds", flush=True)
 
     return result_file_names
+
+
+def get_top_n_per_species(all_results: list, n: int = 3):
+    """
+    Gets the top N instances per species based on confidence values.
+    
+    Args:
+        all_results (list): List of dictionaries containing detection results
+        n (int): Number of top instances to keep per species (default: 3)
+        
+    Returns:
+        list: Filtered list containing only top N instances per species
+    """
+    # Group results by species
+    species_dict = {}
+    for result in all_results:
+        species = result['species']
+        if species not in species_dict:
+            species_dict[species] = []
+        species_dict[species].append(result)
+    
+    # Get top N for each species
+    filtered_results = []
+    for species, detections in species_dict.items():
+        # Sort by confidence (highest first)
+        detections.sort(key=lambda x: x['confidence'], reverse=True)
+        # Take top N
+        filtered_results.extend(detections[:n])
+    
+    return filtered_results
