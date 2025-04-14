@@ -166,3 +166,5 @@ BirdNET-Analyzer/entitlements.plist
 audio/
 
 bird/__pycache__/
+
+myvenv/
