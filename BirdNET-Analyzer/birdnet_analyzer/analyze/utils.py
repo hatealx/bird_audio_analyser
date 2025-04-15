@@ -130,7 +130,7 @@ def generate_raven_table(timestamps: list[str], result: dict[str, list], afile_p
                 'confidence': c[1]
             })    
             
-    print(all_results)
+    # print(all_results)
     # Step 2: (if required) Get top 3 instances per species
     # all_results = get_top_n_per_species(all_results, 3)
     
@@ -144,30 +144,32 @@ def generate_raven_table(timestamps: list[str], result: dict[str, list], afile_p
             selection_id += 1
             mystart = secs_to_hms(entry['start'])
             myend = secs_to_hms(entry['end'])
-            temp_string = ""
             conf = (entry['confidence'] + 0.005) * 100
             conf = int(conf)
 
+            # Remove 'Eurasian' or 'European' or 'Common' from start of species name.
+            species = entry['species']
+            if species.startswith("Eurasian "):
+                species = species[9:]
+            if species.startswith("European "):
+                species = species[9:]
+            if species.startswith("Common "):
+                species = species[7:]
+
             # out_string += f"{selection_id}\tSpectrogram 1\t1\t{mystart}\t{myend}\t{low_freq}\t{high_freq}\t{entry['species']}\t{entry['code']}\t{entry['confidence']:.4f}\t{afile_path}\t{entry['start']}\n"
-            temp_string = f"{mystart}  \t{myend}  \t{entry['species']:<30}\t{conf:>3}  \n"
+            temp_string = f"{mystart}  \t{myend}  \t{species:<30}\t{conf:>3}  \n"
             # print(temp_string)
         except:
             print(" ERROR AROUND LINE 148")
         out_string += temp_string
 
-    try:
-        # Add a dummy line for empty results to maintain file format consistency
-        if len(out_string) == len(RAVEN_TABLE_HEADER) and cfg.OUTPUT_PATH is not None:
-            selection_id += 1
-            out_string += f"\t0\t3\t\tnocall\tnocall\t1.0\t0\n"
-    except:
-        print("Error lines 146-149")
+    # Add a dummy line for empty results to maintain file format consistency
+    if len(out_string) == len(RAVEN_TABLE_HEADER) and cfg.OUTPUT_PATH is not None:
+        selection_id += 1
+        out_string += f"\t0\t3\t\tnocall\tnocall\t1.0\t0\n"
 
     print(out_string)
-    try:
-        utils.save_result_file(result_path, out_string)
-    except:
-        print("Error line 155")
+    utils.save_result_file(result_path, out_string)
 
 
 def generate_audacity(timestamps: list[str], result: dict[str, list], result_path: str):
