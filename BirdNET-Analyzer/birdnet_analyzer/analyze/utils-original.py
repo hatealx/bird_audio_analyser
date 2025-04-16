@@ -13,8 +13,7 @@ import birdnet_analyzer.model as model
 import birdnet_analyzer.utils as utils
 
 #                    0       1      2           3             4              5               6                7           8             9           10         11
-# RAVEN_TABLE_HEADER = "Selection\tView\tChannel\tBegin Time (s)\tEnd Time (s)\tLow Freq (Hz)\tHigh Freq (Hz)\tCommon Name\tSpecies Code\tConfidence\tBegin Path\tFile Offset (s)\n"
-RAVEN_TABLE_HEADER = "Start Time      End Time          Common Name                   Confidence\n"
+RAVEN_TABLE_HEADER = "Selection\tView\tChannel\tBegin Time (s)\tEnd Time (s)\tLow Freq (Hz)\tHigh Freq (Hz)\tCommon Name\tSpecies Code\tConfidence\tBegin Path\tFile Offset (s)\n"
 RTABLE_HEADER = "filepath,start,end,scientific_name,common_name,confidence,lat,lon,week,overlap,sensitivity,min_conf,species_list,model\n"
 KALEIDOSCOPE_HEADER = (
     "INDIR,FOLDER,IN FILE,OFFSET,DURATION,scientific_name,common_name,confidence,lat,lon,week,overlap,sensitivity\n"
@@ -22,19 +21,6 @@ KALEIDOSCOPE_HEADER = (
 CSV_HEADER = "Start (s),End (s),Scientific name,Common name,Confidence,File\n"
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
-
-def secs_to_hms(secsin):
-    res = ""
-    try:
-        secs = float(secsin)
-        secs = int(secs)
-        hh, secs = divmod(secs, 3600)
-        mm, secs = divmod(secs, 60)
-        res = f"{hh:02d}:{mm:02d}:{secs:02d}"
-    except:
-        print(f"Error in secs to hms <{secsin}>")
-    return res
-    
 
 def save_analysis_params(path):
     utils.save_params(
@@ -128,47 +114,22 @@ def generate_raven_table(timestamps: list[str], result: dict[str, list], afile_p
                 'species': label.split('_', 1)[-1],  # Extract common name
                 'code': code,
                 'confidence': c[1]
-            })    
-            
-    # print(all_results)
-    # Step 2: (if required) Get top 3 instances per species
-    # all_results = get_top_n_per_species(all_results, 3)
+            })    # Step 2: Get top 3 instances per species
+    all_results = get_top_n_per_species(all_results, 3)
     
     # Step 3: Sort final results by species and confidence
     all_results.sort(key=lambda x: (x['species'], -x['confidence']))
 
     # Step 4: Generate the sorted output
     for entry in all_results:
-        temp_string = ""
-        try:
-            selection_id += 1
-            mystart = secs_to_hms(entry['start'])
-            myend = secs_to_hms(entry['end'])
-            conf = (entry['confidence'] + 0.005) * 100
-            conf = int(conf)
-
-            # Remove 'Eurasian' or 'European' or 'Common' from start of species name.
-            species = entry['species']
-            if species.startswith("Eurasian "):
-                species = species[9:]
-            if species.startswith("European "):
-                species = species[9:]
-            if species.startswith("Common "):
-                species = species[7:]
-
-            # out_string += f"{selection_id}\tSpectrogram 1\t1\t{mystart}\t{myend}\t{low_freq}\t{high_freq}\t{entry['species']}\t{entry['code']}\t{entry['confidence']:.4f}\t{afile_path}\t{entry['start']}\n"
-            temp_string = f"{mystart}  \t{myend}  \t{species:<30}\t{conf:>3}  \n"
-            # print(temp_string)
-        except:
-            print(" ERROR AROUND LINE 148")
-        out_string += temp_string
+        selection_id += 1
+        out_string += f"{selection_id}\tSpectrogram 1\t1\t{entry['start']}\t{entry['end']}\t{low_freq}\t{high_freq}\t{entry['species']}\t{entry['code']}\t{entry['confidence']:.4f}\t{afile_path}\t{entry['start']}\n"
 
     # Add a dummy line for empty results to maintain file format consistency
     if len(out_string) == len(RAVEN_TABLE_HEADER) and cfg.OUTPUT_PATH is not None:
         selection_id += 1
-        out_string += f"\t0\t3\t\tnocall\tnocall\t1.0\t0\n"
+        out_string += f"{selection_id}\tSpectrogram 1\t1\t0\t3\t{low_freq}\t{high_freq}\tnocall\tnocall\t1.0\t{afile_path}\t0\n"
 
-    print(out_string)
     utils.save_result_file(result_path, out_string)
 
 
